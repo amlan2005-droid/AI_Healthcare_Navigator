@@ -5,7 +5,7 @@ import torch
 processor = None
 model = None
 device = "cuda" if torch.cuda.is_available() else "cpu"
-print("OCR TEXT:", text)
+
 
 def load_model():
     global processor, model
