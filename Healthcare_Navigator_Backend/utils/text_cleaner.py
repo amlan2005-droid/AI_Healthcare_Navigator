@@ -30,11 +30,11 @@ def normalize_name(name: str) -> str:
 
 def is_valid_medicine(name: str) -> bool:
     """Filter out noise, allowing legitimate medicine names."""
-    # Reject obvious noise
+    # Reject obvious noise (must be alphabetic)
     if not name.isalpha():
         return False
 
-    # Length constraint
+    # Length constraint (controlled, not loose)
     if len(name) < 4 or len(name) > 12:
         return False
 

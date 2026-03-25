@@ -17,7 +17,8 @@ def extract_candidates_from_text(text: str) -> list[str]:
     stopwords = {
         "tablet", "capsule", "take", "daily", "after",
         "before", "food", "morning", "night",
-        "once", "twice", "thrice", "tab", "cap", "syr", "syrup", "susp"
+        "once", "twice", "thrice", "tab", "cap", "syr", "syrup", "susp",
+        "mg", "ml", "mcg", "unit", "tds", "bd", "od", "hs", "pc", "ac", "stat"
     }
 
     candidates = []
@@ -71,12 +72,13 @@ def prescription_agent(file_path: str, session_id: str = None) -> dict:
             candidates.append(norm)
 
     print("\n===== DEBUG PIPELINE =====")
-    print("OCR TEXT:", text)
-    print("RAW CANDIDATES:", raw_candidates)
-    print("FILTERED CANDIDATES:", candidates)
-    print("=========================\n")
+    print("OCR TEXT:\n", text)
+    print("RAW CANDIDATES:\n", raw_candidates)
+    print("FILTERED CANDIDATES:\n", candidates)
 
     if not candidates:
+        print("FINAL MATCHES: []")
+        print("=========================\n")
         return {
             "filename": filename,
             "analysis": {
@@ -114,6 +116,9 @@ def prescription_agent(file_path: str, session_id: str = None) -> dict:
     # Sort by score descending and take top 3
     matched_meds = sorted(matched_meds, key=lambda x: x["score"], reverse=True)
     matched_meds = matched_meds[:3]
+
+    print("FINAL MATCHES:\n", [m["name"] for m in matched_meds])
+    print("=========================\n")
 
     warning = ""
     if any(m["confidence"] == "medium" for m in matched_meds):
