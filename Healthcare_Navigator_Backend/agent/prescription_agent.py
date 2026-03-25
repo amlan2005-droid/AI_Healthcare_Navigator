@@ -5,27 +5,29 @@ from services.medicine_retriever import get_all_medicines, find_closest_medicine
 from utils.text_cleaner import is_valid_medicine, normalize_name
 
 def extract_candidates_from_text(text: str) -> list[str]:
-    """Extract potential medicine names from raw OCR text."""
+    """Extract potential medicine names using regex and stopwords."""
+    import re
     if not text:
         return []
-        
-    words = text.split()
+
+    text = text.lower()
+    # Find all lowercase words with at least 3 characters
+    words = re.findall(r"[a-z]{3,}", text)
+
+    stopwords = {
+        "tablet", "capsule", "take", "daily", "after",
+        "before", "food", "morning", "night",
+        "once", "twice", "thrice", "tab", "cap", "syr", "syrup", "susp"
+    }
+
     candidates = []
-
-    for i, word in enumerate(words):
-        # Clean word for checking
-        clean_word = word.strip(",.()[]{}").lower()
-        
-        # Pattern 1: Tab/Cap keyword followed by medicine name
-        if clean_word in ["tab", "tablet", "cap", "capsule", "syr", "syrup", "susp"]:
-            if i + 1 < len(words):
-                candidates.append(words[i + 1])
-
-        # Pattern 2: Potential brand name: Capitalized OR length > 4 and has no digits
-        # (Relaxed from strictly capitalized to help with varying OCR quality)
-        elif len(word) > 3:
-            if word[0].isupper() or (len(word) > 4 and word.isalpha()):
-                candidates.append(word)
+    for w in words:
+        if w in stopwords:
+            continue
+        # Controlled filtering by length
+        if len(w) < 4 or len(w) > 12:
+            continue
+        candidates.append(w)
 
     return list(set(candidates))
 
@@ -34,7 +36,7 @@ def prescription_agent(file_path: str, session_id: str = None) -> dict:
     filename = os.path.basename(file_path)
     ext = os.path.splitext(file_path)[1].lower()
 
-    # 🧠 OCR SELECTION: 
+    #  OCR SELECTION: 
     # Use TrOCR for images (handwriting), use pypdf for PDF files
     if ext in [".jpg", ".jpeg", ".png", ".webp"]:
         print(f"DEBUG: Using TrOCR for {filename}...")
@@ -68,8 +70,20 @@ def prescription_agent(file_path: str, session_id: str = None) -> dict:
         if is_valid_medicine(norm):
             candidates.append(norm)
 
+    print("\n===== DEBUG PIPELINE =====")
+    print("OCR TEXT:", text)
+    print("RAW CANDIDATES:", raw_candidates)
+    print("FILTERED CANDIDATES:", candidates)
+    print("=========================\n")
+
     if not candidates:
-        return {"filename": filename, "analysis": "No medicine candidates found."}
+        return {
+            "filename": filename,
+            "analysis": {
+                "medicines": [],
+                "warning": "OCR text unclear. Try better image or preprocessing."
+            }
+        }
 
     # Fetch DB medicines
     medicine_db = get_all_medicines()

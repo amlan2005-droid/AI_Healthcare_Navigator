@@ -28,28 +28,14 @@ def normalize_name(name: str) -> str:
     name = re.sub(r"\s+", " ", name).strip()
     return name
 
-def is_valid_medicine(word: str) -> bool:
+def is_valid_medicine(name: str) -> bool:
     """Filter out noise, allowing legitimate medicine names."""
-    w = word.strip().lower()
-
-    # ❌ too short
-    if len(w) <= 3:
+    # Reject obvious noise
+    if not name.isalpha():
         return False
 
-    # ❌ common noise words
-    if w in IGNORE_WORDS:
-        return False
-
-    # ❌ contains digits (dosage etc)
-    if any(ch.isdigit() for ch in w):
-        return False
-
-    # ❌ junk characters
-    if not w.replace("-", "").isalpha():
-        return False
-
-    # ✅ RELAXED chemical-like filter: only remove if very long (> 15 chars)
-    if len(w) > 15 and any(w.endswith(suffix) for suffix in CHEMICAL_SUFFIXES):
+    # Length constraint
+    if len(name) < 4 or len(name) > 12:
         return False
 
     return True
