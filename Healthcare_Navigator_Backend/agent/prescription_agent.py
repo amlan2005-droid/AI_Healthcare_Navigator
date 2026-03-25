@@ -97,8 +97,8 @@ def prescription_agent(file_path: str, session_id: str = None) -> dict:
     for cand in candidates:
         name, score, confidence = find_closest_medicine(cand, medicine_db)
         
-        #  Skip low-confidence garbage (as suggested)
-        if confidence == "low":
+        # 🧠 ONLY accept top-tier matches (Score >= 90)
+        if confidence != "high":
             continue
 
         if name not in seen:

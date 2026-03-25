@@ -39,8 +39,8 @@ def find_closest_medicine(query: str, choices: list[str]):
     second = matches[1]
 
     # 🧠 FIRST: ambiguity check (Ambiguity > Score)
-    # If the gap between top two matches is small (< 5), it's uncertain
-    if best[1] - second[1] < 10:  # Increased ambiguity margin
+    # If the gap between top two matches is small (< 10), it's uncertain
+    if best[1] - second[1] < 10:
         return best[0], best[1], "medium"
 
     # 🧠 THEN: confidence check based on score
