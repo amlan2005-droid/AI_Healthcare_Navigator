@@ -21,7 +21,7 @@ def find_closest_medicine(query: str, choices: list[str]):
         return None, 0, "low"
 
     # Get top 3 matches to evaluate ambiguity
-    matches = process.extract(query, choices, scorer=fuzz.token_sort_ratio, limit=3)
+    matches = process.extract(query, choices, scorer=fuzz.WRatio, limit=3)
     
     if not matches:
         return None, 0, "low"
@@ -30,9 +30,9 @@ def find_closest_medicine(query: str, choices: list[str]):
     
     # Handle single match case
     if len(matches) == 1:
-        if best[1] > 85:
+        if best[1] >= 90:
             return best[0], best[1], "high"
-        elif best[1] > 65:
+        elif best[1] >= 75:
             return best[0], best[1], "medium"
         return best[0], best[1], "low"
 
@@ -40,13 +40,13 @@ def find_closest_medicine(query: str, choices: list[str]):
 
     # 🧠 FIRST: ambiguity check (Ambiguity > Score)
     # If the gap between top two matches is small (< 5), it's uncertain
-    if best[1] - second[1] < 5:
+    if best[1] - second[1] < 10:  # Increased ambiguity margin
         return best[0], best[1], "medium"
 
     # 🧠 THEN: confidence check based on score
-    if best[1] > 85:
+    if best[1] >= 90:
         return best[0], best[1], "high"
-    elif best[1] > 65:
+    elif best[1] >= 75:
         return best[0], best[1], "medium"
         
     return best[0], best[1], "low"

@@ -15,10 +15,9 @@ def extract_candidates_from_text(text: str) -> list[str]:
     words = re.findall(r"[a-z]{3,}", text)
 
     stopwords = {
-        "tablet", "capsule", "take", "daily", "after",
-        "before", "food", "morning", "night",
-        "once", "twice", "thrice", "tab", "cap", "syr", "syrup", "susp",
-        "mg", "ml", "mcg", "unit", "tds", "bd", "od", "hs", "pc", "ac", "stat"
+        "tab", "tablet", "cap", "capsule",
+        "mg", "ml", "tds", "bd", "od", "hs",
+        "morning", "night", "nite", "after", "before", "food"
     }
 
     candidates = []
@@ -98,7 +97,7 @@ def prescription_agent(file_path: str, session_id: str = None) -> dict:
     for cand in candidates:
         name, score, confidence = find_closest_medicine(cand, medicine_db)
         
-        # 🧠 Skip low-confidence garbage (as suggested)
+        #  Skip low-confidence garbage (as suggested)
         if confidence == "low":
             continue
 
