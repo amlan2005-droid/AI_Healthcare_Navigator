@@ -5,7 +5,7 @@ import torch
 processor = None
 model = None
 device = "cuda" if torch.cuda.is_available() else "cpu"
-
+print("OCR TEXT:", text)
 
 def load_model():
     global processor, model
@@ -26,6 +26,7 @@ def extract_text_trocr(image_path: str) -> dict:
         generated_ids = model.generate(pixel_values)
 
         text = processor.batch_decode(generated_ids, skip_special_tokens=True)[0]
+        print("OCR TEXT:", text)
 
         return {"raw_text": text}
 
