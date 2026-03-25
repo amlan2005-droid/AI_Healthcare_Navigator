@@ -48,8 +48,8 @@ def is_valid_medicine(word: str) -> bool:
     if not w.replace("-", "").isalpha():
         return False
 
-    # ✅ RELAXED chemical-like filter: only remove if very long
-    if len(w) > 12 and any(w.endswith(suffix) for suffix in CHEMICAL_SUFFIXES):
+    # ✅ RELAXED chemical-like filter: only remove if very long (> 15 chars)
+    if len(w) > 15 and any(w.endswith(suffix) for suffix in CHEMICAL_SUFFIXES):
         return False
 
     return True

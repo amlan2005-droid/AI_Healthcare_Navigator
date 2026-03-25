@@ -13,14 +13,19 @@ def extract_candidates_from_text(text: str) -> list[str]:
     candidates = []
 
     for i, word in enumerate(words):
+        # Clean word for checking
+        clean_word = word.strip(",.()[]{}").lower()
+        
         # Pattern 1: Tab/Cap keyword followed by medicine name
-        if word.lower() in ["tab", "tablet", "cap", "capsule"]:
+        if clean_word in ["tab", "tablet", "cap", "capsule", "syr", "syrup", "susp"]:
             if i + 1 < len(words):
                 candidates.append(words[i + 1])
 
-        # Pattern 2: Capitalized strings — likely a medicine/brand name
-        elif word and word[0].isupper() and len(word) > 3:
-            candidates.append(word)
+        # Pattern 2: Potential brand name: Capitalized OR length > 4 and has no digits
+        # (Relaxed from strictly capitalized to help with varying OCR quality)
+        elif len(word) > 3:
+            if word[0].isupper() or (len(word) > 4 and word.isalpha()):
+                candidates.append(word)
 
     return list(set(candidates))
 
@@ -48,6 +53,8 @@ def prescription_agent(file_path: str, session_id: str = None) -> dict:
         return {"filename": filename, "analysis": extraction_result["error"]}
 
     text = extraction_result.get("raw_text", "")
+    print(f"DEBUG: Raw OCR Text: '{text}'")  # 🔍 Trace what actually came back
+
     if not text:
         return {"filename": filename, "analysis": "No readable text found."}
 
